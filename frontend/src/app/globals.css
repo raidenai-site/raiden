@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --space-bg: #08080f;
+  --space-surface: #0c0c16;
+  --space-card: #12121f;
+  --space-border: #1e1e32;
+  --space-accent: #6366f1;
+  --space-accent-light: #818cf8;
+  --space-secondary: #ec4899;
+  --space-success: #10b981;
+  --space-warning: #f59e0b;
+  --space-danger: #ef4444;
+  --space-text: #e8ecf2;
+  --space-text-dim: #7a8599;
+  --space-text-muted: #4a5568;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: linear-gradient(135deg, #08080f 0%, #0d0d18 50%, #0a0f1a 100%);
+  color: var(--space-text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Stars Background */
+.stars-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.stars-bg::before,
+.stars-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.stars-bg::before {
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, rgba(255,255,255,0.25), transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,0.22), transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.15), transparent),
+    radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.28), transparent),
+    radial-gradient(1px 1px at 200px 50px, rgba(255,255,255,0.15), transparent),
+    radial-gradient(1px 1px at 220px 150px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 280px 90px, rgba(255,255,255,0.22), transparent),
+    radial-gradient(1px 1px at 320px 180px, rgba(255,255,255,0.25), transparent),
+    radial-gradient(1px 1px at 350px 30px, rgba(255,255,255,0.15), transparent),
+    radial-gradient(1px 1px at 400px 100px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 450px 200px, rgba(255,255,255,0.22), transparent),
+    radial-gradient(1px 1px at 500px 60px, rgba(255,255,255,0.28), transparent),
+    radial-gradient(1px 1px at 550px 140px, rgba(255,255,255,0.15), transparent);
+  background-size: 600px 250px;
+  animation: twinkle 12s ease-in-out infinite;
+}
+
+.stars-bg::after {
+  background-image: 
+    radial-gradient(1px 1px at 100px 200px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 200px 100px, rgba(255,255,255,0.25), transparent),
+    radial-gradient(1px 1px at 300px 300px, rgba(255,255,255,0.15), transparent),
+    radial-gradient(1px 1px at 400px 250px, rgba(255,255,255,0.22), transparent),
+    radial-gradient(1px 1px at 500px 50px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 600px 150px, rgba(255,255,255,0.28), transparent),
+    radial-gradient(1px 1px at 700px 350px, rgba(255,255,255,0.15), transparent),
+    radial-gradient(1px 1px at 150px 400px, rgba(255,255,255,0.18), transparent),
+    radial-gradient(1px 1px at 250px 450px, rgba(255,255,255,0.22), transparent),
+    radial-gradient(1px 1px at 350px 380px, rgba(255,255,255,0.25), transparent);
+  background-size: 800px 500px;
+  animation: twinkle 16s ease-in-out infinite reverse;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--space-surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--space-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--space-accent);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--space-accent) 0%, var(--space-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(30, 30, 48, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Ghost Message Effect */
+.ghost-message {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+  border: 1px dashed rgba(99, 102, 241, 0.4);
+  animation: ghost-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ghost-pulse {
+  0%, 100% {
+    opacity: 0.7;
+    transform: scale(1);
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.005);
+    box-shadow: 0 0 30px rgba(99, 102, 241, 0.2);
+  }
+}
+
+/* Animations */
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out forwards;
+}
+
+/* Typing Indicator */
+.typing-indicator span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--space-accent);
+  border-radius: 50%;
+  margin: 0 2px;
+  animation: typing-bounce 1.4s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(1) { animation-delay: 0s; }
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-8px); }
+}
+
+/* Button Styles */
+.btn-primary {
+  background: linear-gradient(135deg, var(--space-accent) 0%, #4f46e5 100%);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--space-card);
+  border: 1px solid var(--space-border);
+  color: var(--space-text);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  border-color: var(--space-accent);
+  color: var(--space-accent);
+}
+
+/* Toggle Switch */
+.toggle-track {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: var(--space-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-track.active {
+  background: var(--space-accent);
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-track.active::after {
+  left: 22px;
+}
+
+/* Online Indicator */
+.online-pulse {
+  position: relative;
+}
+
+.online-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 2px solid var(--space-success);
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Selection */
+::selection {
+  background: rgba(99, 102, 241, 0.3);
+  color: white;
+}
+
+/* Focus States */
+input:focus, textarea:focus, button:focus {
+  outline: none;
+}
+
+input:focus, textarea:focus {
+  border-color: var(--space-accent) !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Subtle gradient overlay */
+.gradient-overlay {
+  background: linear-gradient(180deg, transparent 0%, rgba(15, 15, 26, 0.5) 100%);
+}
