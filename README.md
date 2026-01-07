@@ -26,41 +26,41 @@
 
 ---
 
-## ⚡ What is Raiden?
+## What is Raiden?
 
-Raiden is a **desktop app** that uses AI to automate your Instagram DMs. It analyzes your past conversations to learn your unique voice, slang, and vibe — then replies **as you**.
+Raiden is a **desktop app** that uses AI to automate your Instagram DMs. It analyzes your past conversations to learn your unique voice, slang, and vibe and then replies **as you**.
 
-✅ **100% Local & Private** — Your credentials and messages never leave your device  
-✅ **Personality Cloning** — AI that actually sounds like you  
-✅ **Auto-Pilot Mode** — Let Raiden handle conversations automatically  
-✅ **Suggestion Mode** — Review AI drafts before sending  
-✅ **AI Assistant** — Search your DMs with natural language  
+**100% Local & Private** — Your credentials and messages and all other data related to your account are stored locally on your PC.
+**Personality Cloning** — AI that actually sounds like you  
+**Auto-Pilot Mode** — Let Raiden handle conversations automatically  
+**Suggestion Mode** — Review AI drafts before sending  
+**AI Assistant** — Search your DMs with natural language  
 
 ---
 
-## 🎯 Features
+## Features
 
-### 🧠 Clone Your Persona
-Raiden analyzes your past conversations to learn your unique voice, slang, and vibe. It doesn't just reply—it replies *as you*.
+### Clone Your Persona
+Raiden analyzes your past conversations to learn your unique voice, slang, and vibe. It replies *as you*.
 
-### 🚀 Smart Auto-Pilot
-Turn on Auto-Pilot for trusted friends and watch Raiden handle the chat. Or use Suggestion Mode to approve drafts before sending.
+### Smart Auto-Pilot
+Turn on Auto-Pilot and watch Raiden handle the chat. Or use Suggestion Mode to approve drafts before sending.
 
-### 🔒 100% Private & Local
-Raiden runs on your machine. Your credentials and messages never leave your device. Secure, private, and yours.
+### 100% Private & Local
+Raiden runs on your machine. Your credentials and messages never leave your device.
 
-### ⚡ Ice Breakers & Openers
+### Ice Breakers & Openers
 Never struggle with what to say. Raiden generates context-aware openers to start or revive any conversation instantly.
 
-### ✏️ Custom Rules Per Chat
-Set specific boundaries. Be professional with clients ("Formal Mode") and relaxed with the group chat ("Roast Mode").
+### Custom Rules Per Chat
+Set specific boundaries.
 
-### 🔍 Search Your DMs
-Ask Raiden anything: "What restaurant did Mike recommend?" or "Does Sarah seem interested?". It's a search engine for your social life.
+### Search Your DMs
+Ask Raiden anything: "What do I say to aslan?" or "Does Sarah seem interested?". It's a search engine for your social life.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -68,13 +68,13 @@ Ask Raiden anything: "What restaurant did Mike recommend?" or "Does Sarah seem i
 | **Backend** | Python, FastAPI, WebSockets |
 | **Desktop** | Electron |
 | **Browser Automation** | Playwright |
-| **AI** | OpenAI GPT-4 |
+| **AI** | Deepseek V3 |
 | **Auth & Database** | Supabase |
 | **Payments** | DodoPayments |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 raiden/
@@ -89,7 +89,7 @@ raiden/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+
@@ -142,7 +142,7 @@ This will create an installer in `dist-electron/`.
 
 ---
 
-## 📥 Download
+## Download
 
 Get the latest release for Windows:
 
@@ -150,7 +150,7 @@ Get the latest release for Windows:
 
 ---
 
-## 💰 Pricing
+## Pricing
 
 | Plan | Price | Features |
 |------|-------|----------|
@@ -159,13 +159,13 @@ Get the latest release for Windows:
 
 ---
 
-## 📄 License
+## License
 
 This project is proprietary software. See [LICENSE.txt](LICENSE.txt) for details.
 
 ---
 
-## 📧 Support
+## Support
 
 Need help? Contact us at **support@raidenai.site**
 
