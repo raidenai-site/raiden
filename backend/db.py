@@ -1,9 +1,22 @@
 import json
 import os
 from typing import Optional, Dict, Any
+from pathlib import Path
 
-# Define absolute path to sessions.json
-SESSION_FILE = os.path.abspath(os.path.join(os.path.dirname(__file__), "sessions.json"))
+# Get data directory for storing session data
+def _get_data_dir() -> Path:
+    """Get the data directory for storing data files"""
+    if os.name == 'nt':  # Windows
+        base = Path(os.environ.get('APPDATA', Path.home() / 'AppData' / 'Roaming'))
+    else:
+        base = Path.home() / '.local' / 'share'
+    
+    data_dir = base / 'Raiden'
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir
+
+# Define path to sessions.json in AppData
+SESSION_FILE = str(_get_data_dir() / "sessions.json")
 
 
 class SessionManager:

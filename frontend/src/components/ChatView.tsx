@@ -20,6 +20,7 @@ interface ChatViewProps {
   onRegenerateSuggestion: () => Promise<void>;
   onUpdateSettings: (updates: Partial<ChatSettings>) => Promise<void>;
   onRegenerateProfile: () => Promise<void>;
+  onProfileUpdate?: (newProfile: Profile) => void;
 }
 
 export default function ChatView({
@@ -36,6 +37,7 @@ export default function ChatView({
   onRegenerateSuggestion,
   onUpdateSettings,
   onRegenerateProfile,
+  onProfileUpdate,
 }: ChatViewProps) {
   const [inputText, setInputText] = useState("");
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -43,6 +45,16 @@ export default function ChatView({
   const [isStarting, setIsStarting] = useState(false);
   const [viewingMedia, setViewingMedia] = useState<MediaObject | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-resize textarea based on content
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
+  }, [inputText]);
 
   // When a suggestion comes in, prefill the input
   useEffect(() => {
@@ -66,7 +78,7 @@ export default function ChatView({
   // Scroll to bottom - instant on initial load, smooth for new messages
   useEffect(() => {
     if (messages.length === 0) return;
-    
+
     if (isInitialLoadRef.current) {
       // Instant scroll on initial load or chat switch
       messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
@@ -102,10 +114,10 @@ export default function ChatView({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-transparent relative">
+    <div className="flex-1 flex flex-col h-full bg-space-surface/20 relative">
       {/* Stars Background */}
       <div className="stars-bg" />
-      
+
       {/* Header */}
       <div className="px-6 py-4 border-b border-space-border/50 bg-space-surface/60 backdrop-blur-xl relative z-10">
         <div className="flex items-center justify-between">
@@ -113,19 +125,17 @@ export default function ChatView({
           <div className="flex items-center gap-4">
             <div className="relative">
               {chat.profile_pic ? (
-                <img 
-                  src={chat.profile_pic} 
+                <img
+                  src={chat.profile_pic}
                   alt={chat.username}
-                  className={`w-11 h-11 rounded-full object-cover ${
-                    settings.enabled ? "ring-2 ring-space-accent ring-offset-2 ring-offset-space-surface" : ""
-                  }`}
+                  className={`w-11 h-11 rounded-full object-cover ${settings.enabled ? "ring-2 ring-space-accent ring-offset-2 ring-offset-space-surface" : ""
+                    }`}
                 />
               ) : (
-                <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold ${
-                  settings.enabled 
-                    ? "bg-gradient-to-br from-space-accent to-space-secondary text-white" 
-                    : "bg-space-card text-space-text-dim"
-                }`}>
+                <div className={`w-11 h-11 rounded-full flex items-center justify-center text-base font-semibold ${settings.enabled
+                  ? "bg-gradient-to-br from-space-accent to-space-secondary text-white"
+                  : "bg-space-card text-space-text-dim"
+                  }`}>
                   {chat.username.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -163,13 +173,20 @@ export default function ChatView({
 
           {/* Controls */}
           <div className="flex items-center gap-6">
-            {/* Tracking Toggle */}
+            {/* AI Toggle */}
             <label className="flex items-center gap-3 cursor-pointer">
-              <span className="text-xs text-space-text-dim font-medium">Tracking</span>
+              <span className="text-xs text-space-text-dim font-medium">AI</span>
               <button
-                onClick={() => onUpdateSettings({ enabled: !settings.enabled })}
+                onClick={() => {
+                  // If turning AI off, also turn off auto-pilot
+                  if (settings.enabled) {
+                    onUpdateSettings({ enabled: false, auto_reply: false });
+                  } else {
+                    onUpdateSettings({ enabled: true });
+                  }
+                }}
                 className={`toggle-track ${settings.enabled ? "active" : ""}`}
-                aria-label="Toggle tracking"
+                aria-label="Toggle AI"
               />
             </label>
 
@@ -177,7 +194,14 @@ export default function ChatView({
             <label className="flex items-center gap-3 cursor-pointer">
               <span className="text-xs text-space-text-dim font-medium">Auto-Pilot</span>
               <button
-                onClick={() => onUpdateSettings({ auto_reply: !settings.auto_reply })}
+                onClick={() => {
+                  // If turning auto-pilot on, also enable AI
+                  if (!settings.auto_reply) {
+                    onUpdateSettings({ auto_reply: true, enabled: true });
+                  } else {
+                    onUpdateSettings({ auto_reply: false });
+                  }
+                }}
                 className={`toggle-track ${settings.auto_reply ? "active" : ""}`}
                 style={settings.auto_reply ? { background: "var(--space-secondary)" } : {}}
                 aria-label="Toggle auto-pilot"
@@ -280,18 +304,18 @@ export default function ChatView({
               .replace(/\s*\[Replied\]\s*$/, "")
               .trim();
             const media = msg.media;
-            
+
             // Determine if we should show the username
             // Show username if it's not "Me" and not "Them" (i.e., it's a real username in a GC)
             const showUsername = !isMe && sender !== "Them" && sender.length > 0;
-            
+
             // Only animate the last 3 messages to avoid re-animating old ones
             const isRecent = i >= messages.length - 3;
 
             return (
               <div
                 key={`${i}-${msg.sender}-${msg.text.slice(0, 30)}`}
-                className={`flex ${isMe ? "justify-end" : "justify-start"} ${isRecent ? "animate-slide-up" : ""}`}
+                className={`flex ${isMe ? "justify-end" : "justify-start"} ${isRecent ? "animate-message-entry" : ""}`}
                 style={isRecent ? { animationDelay: `${Math.max(0, (i - (messages.length - 3))) * 0.05}s` } : undefined}
               >
                 <div className={`max-w-[70%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
@@ -301,11 +325,10 @@ export default function ChatView({
                     </span>
                   )}
                   <div
-                    className={`rounded-2xl overflow-hidden ${
-                      isMe
-                        ? "bg-gradient-to-r from-space-accent to-space-accent-light text-white rounded-br-md"
-                        : "bg-space-card text-space-text rounded-bl-md"
-                    }`}
+                    className={`rounded-[20px] overflow-hidden ${isMe
+                      ? "bg-space-accent text-white shadow-md"
+                      : "bg-[#262626] text-space-text"
+                      }`}
                   >
                     {/* Media Content */}
                     {media && (
@@ -328,11 +351,11 @@ export default function ChatView({
       </div>
 
       {/* Input Area with Log Box */}
-      <div className="border-t border-space-border/30 bg-space-surface/60 backdrop-blur-xl relative z-10">
-        {/* Log Box - slides up above input */}
+      <div className="border-t border-space-border/30 bg-space-surface/60 backdrop-blur-md p-3 relative z-20">
+        {/* Log Box - positioned above input area */}
         {logState.type && (
-          <div className="px-4 pt-3 animate-slide-up">
-            <div className="bg-space-card/80 border border-space-border/50 rounded-t-xl px-4 py-3">
+          <div className="absolute bottom-full left-0 right-0 px-4 pb-2 pointer-events-auto">
+            <div className="bg-space-card/95 border border-space-border/50 rounded-xl px-4 py-3 shadow-lg backdrop-blur-sm animate-slide-up">
               {logState.type === "generating" && (
                 <div className="flex items-center gap-3">
                   <svg className="w-4 h-4 animate-spin text-space-accent" viewBox="0 0 24 24" fill="none">
@@ -366,7 +389,7 @@ export default function ChatView({
                           setInputText("");
                         }
                       }}
-                      className="px-3 py-1.5 text-xs font-medium bg-space-accent text-white rounded-lg hover:bg-space-accent-light transition-colors"
+                      className="px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-purple-600 to-space-secondary text-white rounded-lg hover:opacity-90 transition-opacity"
                     >
                       Accept
                     </button>
@@ -396,18 +419,18 @@ export default function ChatView({
         )}
 
         {/* Input */}
-        <div className="p-4">
-          <div className="flex items-end gap-3">
+        <div>
+          <div className="flex items-center gap-3">
             <div className="flex-1">
               <textarea
+                ref={textareaRef}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Type a message..."
                 rows={1}
-                className={`w-full px-4 py-3 bg-space-card border rounded-xl text-sm text-space-text placeholder:text-space-text-muted resize-none focus:border-space-accent transition-all ${
-                  logState.type === "suggestion" ? "border-space-accent/50" : "border-space-border/50"
-                }`}
+                className={`w-full px-4 py-3 bg-space-card border rounded-xl text-sm text-space-text placeholder:text-space-text-muted resize-none focus:border-space-accent transition-all ${logState.type === "suggestion" ? "border-space-accent/50" : "border-space-border/50"
+                  }`}
                 style={{ minHeight: "48px", maxHeight: "120px" }}
               />
             </div>
@@ -429,7 +452,9 @@ export default function ChatView({
         <ProfileModal
           profile={profile}
           username={chat.username}
+          chatId={chat.id}
           onClose={() => setShowProfileModal(false)}
+          onProfileUpdate={onProfileUpdate}
         />
       )}
 
@@ -487,7 +512,7 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
         return (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" />
             </svg>
             Reel
           </span>
@@ -496,7 +521,7 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
         return (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z"/>
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5-7l-3 3.72L9 13l-3 4h12l-4-5z" />
             </svg>
             Post
           </span>
@@ -505,7 +530,7 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
         return (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+              <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
             </svg>
             Video
           </span>
@@ -515,7 +540,7 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
         return (
           <span className="flex items-center gap-1">
             <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" />
             </svg>
             Photo
           </span>
@@ -539,8 +564,8 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
   }
 
   return (
-    <div 
-      className={`relative ${onClick ? "cursor-pointer group" : ""}`} 
+    <div
+      className={`relative ${onClick ? "cursor-pointer group" : ""}`}
       style={mediaStyles}
       onClick={onClick}
     >
@@ -550,14 +575,13 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
           <div className="w-6 h-6 border-2 border-space-accent/30 border-t-space-accent rounded-full animate-spin" />
         </div>
       )}
-      
+
       {/* Media Type Badge */}
-      <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-sm z-10 ${
-        isMe ? "bg-white/20 text-white" : "bg-black/40 text-white"
-      }`}>
+      <div className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-medium backdrop-blur-sm z-10 ${isMe ? "bg-white/20 text-white" : "bg-black/40 text-white"
+        }`}>
         {getMediaLabel()}
       </div>
-      
+
       {/* Hover Overlay */}
       {onClick && !isLoading && (
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 flex items-center justify-center">
@@ -568,7 +592,7 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
           </div>
         </div>
       )}
-      
+
       {/* Image */}
       <img
         src={media.url}
@@ -581,13 +605,13 @@ function MediaRenderer({ media, isMe, onClick }: { media: MediaObject; isMe: boo
           setHasError(true);
         }}
       />
-      
+
       {/* Video Play Icon Overlay */}
       {(media.type === "video" || media.type === "reel") && !isLoading && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-200">
             <svg className="w-6 h-6 text-white ml-1" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M8 5v14l11-7z"/>
+              <path d="M8 5v14l11-7z" />
             </svg>
           </div>
         </div>
@@ -622,11 +646,11 @@ function MediaViewerModal({ media, onClose }: { media: MediaObject; onClose: () 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/90 backdrop-blur-sm animate-fade-in"
         onClick={onClose}
       />
-      
+
       {/* Content */}
       <div className="relative z-10 max-w-[90vw] max-h-[90vh] flex flex-col items-center animate-fade-in">
         {/* Header */}
@@ -643,14 +667,14 @@ function MediaViewerModal({ media, onClose }: { media: MediaObject; onClose: () 
             </svg>
           </button>
         </div>
-        
+
         {/* Loading State */}
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-10 h-10 border-3 border-white/30 border-t-white rounded-full animate-spin" />
           </div>
         )}
-        
+
         {/* Image */}
         <img
           src={media.url}
@@ -658,13 +682,13 @@ function MediaViewerModal({ media, onClose }: { media: MediaObject; onClose: () 
           className={`max-w-[90vw] max-h-[85vh] object-contain rounded-lg shadow-2xl transition-opacity duration-300 ${isLoading ? "opacity-0" : "opacity-100"}`}
           onLoad={() => setIsLoading(false)}
         />
-        
+
         {/* Video indicator */}
         {(media.type === "video" || media.type === "reel") && !isLoading && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="px-4 py-2 rounded-lg bg-black/50 backdrop-blur-sm text-white text-sm flex items-center gap-2">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M8 5v14l11-7z"/>
+                <path d="M8 5v14l11-7z" />
               </svg>
               <span>Video preview - open in Instagram to play</span>
             </div>
@@ -704,11 +728,11 @@ function SettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="relative w-full max-w-lg bg-space-surface border border-space-border/50 rounded-2xl shadow-2xl animate-fade-in">
         {/* Header */}

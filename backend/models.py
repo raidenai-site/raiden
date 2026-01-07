@@ -53,7 +53,59 @@ class UserProfile(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     chat = relationship("Chat", back_populates="profile")
 
-engine = create_engine('sqlite:///raiden.db', connect_args={"check_same_thread": False})
+# ============================================================
+# AI ASSISTANT CHAT MEMORY
+# ============================================================
+
+class AIConversation(Base):
+    """Stores AI assistant conversation sessions"""
+    __tablename__ = 'ai_conversations'
+    id = Column(String, primary_key=True)  # UUID
+    title = Column(String, default="New Chat")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    messages = relationship("AIMessage", back_populates="conversation", 
+                          cascade="all, delete-orphan", order_by="AIMessage.created_at")
+
+class AIMessage(Base):
+    """Stores individual messages in AI conversations"""
+    __tablename__ = 'ai_messages'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    conversation_id = Column(String, ForeignKey('ai_conversations.id'))
+    role = Column(String)  # "user" or "assistant"
+    content = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    conversation = relationship("AIConversation", back_populates="messages")
+
+# ============================================================
+# RATE LIMITING
+# ============================================================
+
+class RateLimitState(Base):
+    """Local rate limit tracking for LLM requests"""
+    __tablename__ = 'rate_limit_state'
+    id = Column(Integer, primary_key=True)  # Always ID=1 (single row)
+    request_count = Column(Integer, default=0)
+    window_start = Column(DateTime, default=datetime.utcnow)
+    cooldown_until = Column(DateTime, nullable=True)  # Set when limit is exceeded
+
+# Get data directory (same as db2.py)
+import os
+from pathlib import Path
+
+def _get_data_dir() -> Path:
+    """Get the data directory for storing databases"""
+    if os.name == 'nt':  # Windows
+        base = Path(os.environ.get('APPDATA', Path.home() / 'AppData' / 'Roaming'))
+    else:
+        base = Path.home() / '.local' / 'share'
+    
+    data_dir = base / 'Raiden'
+    data_dir.mkdir(parents=True, exist_ok=True)
+    return data_dir
+
+_db_path = _get_data_dir() / "raiden.db"
+engine = create_engine(f'sqlite:///{_db_path}', connect_args={"check_same_thread": False})
 Base.metadata.create_all(engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

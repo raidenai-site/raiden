@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/components/AuthProvider";
+import { ToastProvider } from "@/components/ToastProvider";
 
 export const metadata: Metadata = {
-  title: "RAIDEN Command Center",
-  description: "Neural Link Interface for Instagram Automation",
+  title: "Raiden",
+  description: "Your AI Twin",
 };
 
 export default function RootLayout({
@@ -14,9 +16,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        {children}
+        <ToastProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );
 }
+
 

@@ -7,14 +7,11 @@ __pycache__/
 env/
 venv/
 ENV/
-build/
 develop-eggs/
-dist/
-downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -31,7 +28,7 @@ yarn-error.log*
 .next/
 out/
 
-# Database
+# Database (DO NOT UPLOAD - contains your personal data!)
 *.db
 *.sqlite
 *.sqlite3
@@ -47,10 +44,11 @@ out/
 .DS_Store
 Thumbs.db
 
-# Environment variables
+# Environment variables (DO NOT UPLOAD - contains secrets!)
 .env
 .env.local
 .env.*.local
+frontend/.env.local
 
 # Logs
 *.log
@@ -59,3 +57,17 @@ logs/
 # Sessions
 sessions.json
 
+# Build artifacts (these are huge and generated, not needed in repo)
+dist-backend/
+dist-electron/
+build/
+.electron-data/
+
+# Debug/temp files
+debug_screenshots/
+*.spec
+dodo_info.txt
+
+# Supabase local files (if any sensitive data)
+supabase/.branches/
+supabase/.temp/

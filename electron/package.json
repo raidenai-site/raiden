@@ -1,0 +1,71 @@
+{
+  "name": "raiden-desktop",
+  "version": "1.0.0",
+  "description": "AI-powered Instagram DM automation",
+  "main": "main.js",
+  "author": "Raiden",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.raiden.desktop",
+    "productName": "Raiden",
+    "asar": false,
+    "forceCodeSigning": false,
+    "directories": {
+      "output": "../dist-electron"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "logo.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "logo.ico",
+      "uninstallerIcon": "logo.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Raiden",
+      "license": "LICENSE.txt",
+      "perMachine": true
+    },
+    "extraResources": [
+      {
+        "from": "../dist-backend/",
+        "to": "backend",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../frontend/out/",
+        "to": "frontend/out",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "../.env",
+        "to": "backend/raiden-backend/.env"
+      },
+      {
+        "from": "../logo.png",
+        "to": "../logo.png"
+      }
+    ],
+    "files": [
+      "main.js",
+      "preload.js"
+    ]
+  },
+  "dependencies": {
+    "tree-kill": "^1.2.2"
+  }
+}

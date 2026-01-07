@@ -1,47 +1,72 @@
 "use client";
 
+import { useSupabaseAuth } from "@/components/AuthProvider";
 import { useAuth } from "@/lib/hooks";
+import AuthForm from "@/components/AuthForm";
 import LoginTerminal from "@/components/LoginTerminal";
 import Dashboard from "@/components/Dashboard";
 
 export default function Home() {
-  const { status, loading, error, login, logout } = useAuth();
+  const { session, loading: supabaseLoading, signOut: supabaseSignOut } = useSupabaseAuth();
+  const { status, loading: botLoading, checked: botChecked, error, login, logout } = useAuth();
 
-  // Loading state - only show on initial load
-  if (loading && !status) {
-    return <LoadingScreen />;
+  // 1. Wait for Supabase to initialize
+
+  if (!session) {
+    return <AuthForm />;
+  }
+
+  if (supabaseLoading) {
+    return <LoadingScreen message="Initializing..." />;
+  }
+
+  // // 2. Not authenticated with Supabase -> Show Login immediately
+  // if (!session) {
+  //   return <AuthForm />;
+  // }
+
+  // 3. Authenticated -> Wait for Bot connection
+  if (!botChecked) {
+    return <LoadingScreen message="Connecting to Raiden..." />;
+  }
+
+  // Authenticated with Supabase but bot is still loading (e.g., during login process)
+  if (botLoading && !status?.is_active) {
+    return <LoadingScreen message="Connecting to Raiden..." />;
   }
 
   // Connection error - show offline state
   if (error && !status) {
-    return <OfflineScreen error={error} />;
+    return <OfflineScreen error={error} onSignOut={supabaseSignOut} />;
   }
 
-  // Not logged in or bot not active - show login
+  // Authenticated with Supabase but bot not active - show Instagram login
   if (!status?.is_active) {
     return (
-      <LoginTerminal 
-        onLogin={login} 
-        loading={loading} 
-        error={error} 
+      <LoginTerminal
+        onLogin={login}
+        loading={botLoading}
+        error={error}
+        userEmail={session.user?.email || undefined}
+        onSignOut={supabaseSignOut}
       />
     );
   }
 
-  // Logged in and active - show dashboard
-  return <Dashboard onLogout={logout} />;
+  // Fully authenticated - show dashboard
+  return <Dashboard onLogout={logout} userEmail={session.user?.email} onSignOut={supabaseSignOut} />;
 }
 
-function LoadingScreen() {
+function LoadingScreen({ message = "Loading..." }: { message?: string }) {
   return (
     <div className="min-h-screen flex items-center justify-center relative">
       {/* Stars Background */}
       <div className="stars-bg" />
-      
+
       <div className="relative z-10 text-center">
         <div className="w-16 h-16 mx-auto mb-6 relative">
           <div className="absolute inset-0 rounded-full border-2 border-space-accent/20" />
-          <div 
+          <div
             className="absolute inset-0 rounded-full border-2 border-transparent border-t-space-accent animate-spin"
             style={{ animationDuration: "1s" }}
           />
@@ -53,18 +78,18 @@ function LoadingScreen() {
             </div>
           </div>
         </div>
-        <p className="text-space-text-dim text-sm">Connecting to Raiden...</p>
+        <p className="text-space-text-dim text-sm">{message}</p>
       </div>
     </div>
   );
 }
 
-function OfflineScreen({ error }: { error: string }) {
+function OfflineScreen({ error, onSignOut }: { error: string; onSignOut: () => void }) {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative">
       {/* Stars Background */}
       <div className="stars-bg" />
-      
+
       <div className="relative z-10 text-center max-w-md">
         <div className="w-16 h-16 rounded-2xl bg-space-danger/10 flex items-center justify-center mx-auto mb-6">
           <svg className="w-8 h-8 text-space-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,13 +110,22 @@ function OfflineScreen({ error }: { error: string }) {
           Make sure the backend server is running at localhost:8000
         </p>
 
-        <button
-          onClick={() => window.location.reload()}
-          className="px-6 py-3 btn-secondary rounded-xl text-sm font-medium"
-        >
-          Retry Connection
-        </button>
+        <div className="flex gap-3 justify-center">
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 btn-secondary rounded-xl text-sm font-medium"
+          >
+            Retry Connection
+          </button>
+          <button
+            onClick={onSignOut}
+            className="px-6 py-3 text-space-text-dim hover:text-space-danger text-sm font-medium transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
